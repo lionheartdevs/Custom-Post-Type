@@ -20,10 +20,17 @@
 
 namespace LionHeart\CustomProducts;
 
+/**********************************
+ * security measures
+ **********************************/
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Sorry, please use this plugin as directed.' );
 }
 
+/**********************************
+ * constants and globals
+ **********************************/
 /**
  * Setup the plugin's constants.
  *
@@ -37,10 +44,27 @@ function init_constants() {
 		$plugin_url = str_replace( 'http://', 'https://', $plugin_url );
 	}
 
-	define( 'CUSTOMPRODUCTS_URL', $plugin_url );
-	define( 'CUSTOMPRODUCTS_DIR', plugin_dir_path( __DIR__ ) );
+	define('SIMPLE_PRODUCTS_URL', $plugin_url);
+	define('SIMPLE_PRODUCTS_DIR', plugin_dir_path(__DIR__));
+
 }
 
+/*******************************************
+ * plugin text domain for translations
+ *******************************************/
+//what does this do?
+load_plugin_textdomain( 'customproducts', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
+/**********************************
+ * includes
+ **********************************/
+//I like how this is constructed.
+//if(is_admin()) {
+//	// load admin includes
+//	require_once SIMPLE_PRODUCTS_DIR . '/admin/simple-products-admin.php';
+//} else {
+//	// load any front-end include files
+//}
 /**
  * Initialize the plugin hooks.
  *
@@ -62,10 +86,6 @@ function init_hooks() {
  */
 function activate_plugin() {
 	init_autoloader();
-
-	Custom\register_custom_post_type();
-	Custom\register_custom_taxonomy();
-
 	flush_rewrite_rules();
 }
 
@@ -80,7 +100,6 @@ function deactivate_plugin() {
 	delete_option( 'rewrite_rules' );
 }
 
-
 /**
  * Kick off the plugin by initializing the plugin files.
  *
@@ -89,9 +108,25 @@ function deactivate_plugin() {
  * @return void
  */
 function init_autoloader() {
-	require_once( 'src/support/autoloader.php' );
+	require_once('lib/vendor/autoload.php');
+}
 
-	Support\autoload_files( __DIR__ . '/src/' );
+/**********************************
+ * add_actions
+ **********************************/
+/**
+ * hooks functions into proper actions.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function load_add_actions_setup() {
+	add_action('admin_menu', 'LionHeart\CustomProducts\Custom\stripe_submenu_settings_setup');
+}
+
+function global_variables_setup() {
+	$stripe_options = get_option('stripe_settings');
 }
 
 /**
@@ -105,6 +140,8 @@ function launch() {
 	init_constants();
 	init_hooks();
 	init_autoloader();
+	global_variables_setup();
+	load_add_actions_setup();
 }
 
 
