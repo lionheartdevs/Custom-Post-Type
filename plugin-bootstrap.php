@@ -49,21 +49,22 @@ function init_constants() {
  * @return void
  */
 function init_hooks() {
-	register_activation_hook( __FILE__, __NAMESPACE__ . '\flush_rewrites' );
+	register_activation_hook( __FILE__, __NAMESPACE__ . '\activate_plugin' );
 	register_deactivation_hook( __FILE__, __NAMESPACE__ . '\deactivate_plugin' );
 }
 
 /**
- * Flush the rewrites.
+ * Fires when plugin is activated.
  *
  * @since 1.0.0
  *
  * @return void
  */
-function flush_rewrites() {
+function activate_plugin() {
 	init_autoloader();
 
 	Custom\register_custom_post_type();
+	Custom\register_custom_taxonomy();
 
 	flush_rewrite_rules();
 }
@@ -71,13 +72,14 @@ function flush_rewrites() {
 /**
  * The plugin is deactivating.  Delete out the rewrite rules option.
  *
- * @since 1.0.1
+ * @since 1.0.0
  *
  * @return void
  */
 function deactivate_plugin() {
 	delete_option( 'rewrite_rules' );
 }
+
 
 /**
  * Kick off the plugin by initializing the plugin files.
